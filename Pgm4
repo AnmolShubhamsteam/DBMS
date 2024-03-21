@@ -1,0 +1,53 @@
+4. Consider the schema for College Database:
+Aim: Introduce concepts of PLSQL and usage on the table.
+STUDENT (USN, SName, Address, Phone, Gender)
+SEMSEC (SSID, Sem, Sec)
+CLASS (USN, SSID)
+COURSE (Subcode, Title, Sem, Credits)
+IAMARKS (USN, Subcode, SSID, Test1, Test2, Test3, FinalIA)
+Write SQL queries to
+1. List all the student details studying in fourth semester ‘C’ section.
+2. Compute the total number of male and female students in each semester and in each section.
+3. Create a view of Test1 marks of student USN ‘1BI15CS101’ in all courses.
+4. Calculate the FinalIA (average of best two test marks) and update the corresponding table 
+for all students.
+5. Categorize students based on the following criterion:
+If FinalIA = 17 to 20 then CAT = ‘Outstanding’
+If FinalIA = 12 to 16 then CAT = ‘Average’
+If FinalIA< 12 then CAT = ‘Weak’
+Give these details only for 8th semester A, B, and C section students.
+
+select s.usn,s.sname
+from student as s
+inner join class as c
+on c.usn=s.usn
+inner join semsec as s1
+on s1.ssid=c.ssid
+where s1.sec="C" and s1.sem=4;
+
+select count(distinct s.gender),s1.sem,s1.sec from student as s
+inner join class as c
+on c.usn=s.usn
+inner join semsec as s1
+on s1.ssid=c.ssid
+group by s1.sem,s1.sec;
+
+create view v1
+as 
+select i.test1
+from iamarks as i
+where i.usn="1BI13CS091";
+select * from v1;
+
+update iamarks 
+set finalia=greatest(test1+test2,test2+test3,test3+test1)/2; 
+select * from iamarks;
+
+SELECT s.usn, s.sname,
+  (CASE
+    WHEN i.finalia BETWEEN 17 AND 20 THEN 'Outstanding'
+    WHEN i.finalia BETWEEN 12 AND 16 THEN 'Average'
+    ELSE 'Weak'
+  END) AS Performance
+FROM student AS s
+INNER JOIN iamarks AS i ON i.usn = s.usn;
